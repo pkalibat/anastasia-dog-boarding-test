@@ -3,10 +3,274 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anastasia's Dog Boarding - Test Page</title>
+    <title>Anastasia's Dog Sitting Services</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .hero { 
+            background-color: #f8f9fa; 
+            padding: 4rem 0; 
+            margin-bottom: 2rem; 
+        }
+        .service-hours { 
+            background-color: #e9ecef; 
+            padding: 2rem; 
+            border-radius: 8px; 
+            margin-bottom: 2rem; 
+        }
+        .booking-form { 
+            background-color: #fff; 
+            padding: 2rem; 
+            border-radius: 8px; 
+            box-shadow: 0 0 15px rgba(0,0,0,0.1); 
+        }
+        #submitMessage { 
+            display: none; 
+            margin-top: 1rem; 
+        }
+        .admin-panel { 
+            display: none; 
+            padding: 2rem;
+            margin-top: 2rem;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to Anastasia's Dog Boarding</h1>
-    <p>This is a test page to verify GitHub Pages deployment on 11/3/2024.</p>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="#">Anastasia's Dog Sitting</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#services">Services</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#booking">Book Now</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="adminLogin">Admin Login</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <div class="container text-center">
+            <h1>Professional Dog Sitting Services</h1>
+            <p class="lead">Providing loving care for your furry family members</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Admin Panel -->
+        <div class="admin-panel">
+            <h2>Admin Dashboard</h2>
+            <div class="row">
+                <div class="col-md-12">
+                    <h3>Pending Requests</h3>
+                    <div id="pendingRequests"></div>
+                </div>
+            </div>
+        </div>
+
+        <section id="services" class="mb-5">
+            <h2 class="text-center mb-4">Service Hours</h2>
+            <div class="service-hours">
+                <div class="row">
+                    <div class="col-md-6 mx-auto">
+                        <ul class="list-unstyled">
+                            <li><strong>Monday - Friday:</strong> 7:00 AM - 7:00 PM</li>
+                            <li><strong>Saturday:</strong> 8:00 AM - 5:00 PM</li>
+                            <li><strong>Sunday:</strong> 9:00 AM - 4:00 PM</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="booking" class="mb-5">
+            <h2 class="text-center mb-4">Book a Stay</h2>
+            <div class="row">
+                <div class="col-md-8 mx-auto">
+                    <form id="bookingForm" class="booking-form">
+                        <div class="mb-3">
+                            <label for="ownerName" class="form-label">Owner's Name</label>
+                            <input type="text" class="form-control" id="ownerName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="dogName" class="form-label">Dog's Name</label>
+                            <input type="text" class="form-control" id="dogName" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="dropoff" class="form-label">Drop-off Date</label>
+                                <input type="datetime-local" class="form-control" id="dropoff" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="pickup" class="form-label">Pick-up Date</label>
+                                <input type="datetime-local" class="form-control" id="pickup" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Special Notes</label>
+                            <textarea class="form-control" id="notes" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Request Booking</button>
+                        <div id="submitMessage" class="alert" role="alert"></div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer class="bg-light py-4 mt-5">
+        <div class="container text-center">
+            <p>© 2024 Anastasia's Dog Sitting Services. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Firebase Scripts -->
+    <script type="module">
+        // Import Firebase functions
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.2/firebase-auth.js';
+        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, query, where, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore.js';
+        import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.7.2/firebase-analytics.js';
+
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAwSVzOep6mjAOor2k-lKYv4mFiL25SQFU",
+            authDomain: "anastasia-dog-boarding-test.firebaseapp.com",
+            projectId: "anastasia-dog-boarding-test",
+            storageBucket: "anastasia-dog-boarding-test.firebasestorage.app",
+            messagingSenderId: "1086955088175",
+            appId: "1:1086955088175:web:53e19d83237a878c1619da",
+            measurementId: "G-BCYN1RQ88J"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Booking form submission
+        document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const bookingData = {
+                ownerName: document.getElementById('ownerName').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                dogName: document.getElementById('dogName').value,
+                dropoff: document.getElementById('dropoff').value,
+                pickup: document.getElementById('pickup').value,
+                notes: document.getElementById('notes').value,
+                status: 'pending',
+                timestamp: serverTimestamp()
+            };
+
+            try {
+                await addDoc(collection(db, 'bookings'), bookingData);
+                showMessage('Booking request submitted successfully! We will contact you soon.', 'success');
+                document.getElementById('bookingForm').reset();
+            } catch (error) {
+                showMessage('Error submitting booking request. Please try again.', 'danger');
+                console.error('Error:', error);
+            }
+        });
+
+        // Admin login
+        document.getElementById('adminLogin').addEventListener('click', async (e) => {
+            e.preventDefault();
+            const email = prompt('Enter admin email:');
+            const password = prompt('Enter admin password:');
+            
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                showAdminPanel();
+            } catch (error) {
+                alert('Invalid login credentials');
+                console.error('Error:', error);
+            }
+        });
+
+        // Auth state observer
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                showAdminPanel();
+                loadPendingRequests();
+            } else {
+                document.querySelector('.admin-panel').style.display = 'none';
+            }
+        });
+
+        // Load pending requests
+        function loadPendingRequests() {
+            const pendingDiv = document.getElementById('pendingRequests');
+            
+            const q = query(collection(db, 'bookings'), where('status', '==', 'pending'));
+            onSnapshot(q, (snapshot) => {
+                pendingDiv.innerHTML = '';
+                snapshot.forEach((doc) => {
+                    const booking = doc.data();
+                    const bookingEl = document.createElement('div');
+                    bookingEl.className = 'card mb-3';
+                    bookingEl.innerHTML = `
+                        <div class="card-body">
+                            <h5 class="card-title">${booking.dogName} - ${booking.ownerName}</h5>
+                            <p>Drop-off: ${booking.dropoff}</p>
+                            <p>Pick-up: ${booking.pickup}</p>
+                            <p>Contact: ${booking.email} | ${booking.phone}</p>
+                            <p>Notes: ${booking.notes}</p>
+                            <button onclick="updateStatus('${doc.id}', 'approved')" class="btn btn-success me-2">Approve</button>
+                            <button onclick="updateStatus('${doc.id}', 'denied')" class="btn btn-danger">Deny</button>
+                        </div>
+                    `;
+                    pendingDiv.appendChild(bookingEl);
+                });
+            });
+        }
+
+        // Make functions available globally
+        window.updateStatus = async function(bookingId, status) {
+            try {
+                await updateDoc(doc(db, 'bookings', bookingId), {
+                    status: status,
+                    updatedAt: serverTimestamp()
+                });
+                console.log(`Booking ${status}`);
+            } catch (error) {
+                console.error('Error updating booking:', error);
+            }
+        }
+
+        window.showMessage = function(message, type) {
+            const messageDiv = document.getElementById('submitMessage');
+            messageDiv.textContent = message;
+            messageDiv.className = `alert alert-${type}`;
+            messageDiv.style.display = 'block';
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        window.showAdminPanel = function() {
+            document.querySelector('.admin-panel').style.display = 'block';
+        }
+    </script>
 </body>
 </html>
